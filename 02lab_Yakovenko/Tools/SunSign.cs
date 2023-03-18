@@ -1,4 +1,4 @@
-﻿namespace _01lab_Yakovenko.Tools
+﻿namespace KMA.Lab02.Yakovenko.Tools
 {
     internal enum SunSign
     {

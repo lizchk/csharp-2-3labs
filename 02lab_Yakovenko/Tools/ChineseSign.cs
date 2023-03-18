@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-namespace KMA.Lab02.Yakovenko.Tools
-{ 
+﻿namespace KMA.Lab02.Yakovenko.Tools
+{
     internal enum ChineseSign
     {
         Monkey,
