@@ -1,5 +1,4 @@
-﻿using _01lab_Yakovenko.Tools;
-using KMA.Lab02.Yakovenko.Tools;
+﻿using KMA.Lab02.Yakovenko.Tools;
 using System;
 using System.Windows;
 
@@ -19,9 +18,6 @@ namespace KMA.Lab02.Yakovenko.Models
         #endregion
 
         #region Constructors
-        public Person()
-        {
-        }
         public Person(string name, string surname, string email, DateTime dateOfBirth)
         {
             _name = name;
@@ -43,43 +39,107 @@ namespace KMA.Lab02.Yakovenko.Models
         public DateTime DateOfBirth
         {
             get { return _dateOfBirth; }
-            set { _dateOfBirth = value; }
+            private set { _dateOfBirth = value; }
         }
 
         public string Name
         {
             get { return _name; }
-            set { _name = value; }
+            private set { _name = value; }
         }
         public string Surname
         {
             get { return _surname; }
-            set { _surname = value; }
+            private set { _surname = value; }
         }
         public string Email
         {
             get { return _email; }
-            set { _email = value; }
+            private set { _email = value; }
         }
         public bool IsAdult
         {
-            get { return _isAdult; }
-            set { _isAdult = value; }
+            get { return CalcAge() >= 18; }
         }
         public SunSign SunSign
         {
-            get { return _sunSign; }
-            set { _sunSign = value; }
+            get { return CalcWestSign(); }
         }
         public ChineseSign ChineseSign
         {
-            get { return _chineseSign; }
-            set { _chineseSign = value; }
+            get { return CalcChinSign(); }
         }
         public bool IsBirthday
         {
-            get { return _isBirthday; }
-            set { _isBirthday = value; }
+            get { return CalcBirth(); }
+        }
+        #endregion
+
+        #region CalcAge
+
+        private int CalcAge()
+        {
+            int age = DateTime.Now.Year - DateOfBirth.Year;
+            if (DateTime.Now.Month < DateOfBirth.Month || (DateTime.Now.Month == DateOfBirth.Month && DateTime.Now.Day < DateOfBirth.Day))
+            {
+                age--;
+            }
+            if (age < 0 || age > 135)
+            {
+                MessageBox.Show("Date of birth entered incorrectly! Try again.");
+            }
+            return age;
+        }
+        private bool CalcBirth()
+        {
+            if (DateTime.Now.Day == DateOfBirth.Day && DateTime.Now.Month == DateOfBirth.Month)
+            {
+                MessageBox.Show("Happy birthday!💖");
+                return true;
+            }
+            return false;
+
+        }
+        #endregion
+
+        #region CalcSign
+        private ChineseSign CalcChinSign()
+        {
+            return (ChineseSign)(DateOfBirth.Year % 12);
+        }
+        private SunSign CalcWestSign()
+        {
+
+            int month = DateOfBirth.Month;
+            int day = DateOfBirth.Day;
+
+            switch (month)
+            {
+                case 1:
+                    return (day <= 19) ? SunSign.Capricorn : SunSign.Aquarius;
+                case 2:
+                    return (day <= 18) ? SunSign.Aquarius : SunSign.Pisces;
+                case 3:
+                    return (day <= 20) ? SunSign.Pisces : SunSign.Aries;
+                case 4:
+                    return (day <= 19) ? SunSign.Aries : SunSign.Taurus;
+                case 5:
+                    return (day <= 20) ? SunSign.Taurus : SunSign.Gemini;
+                case 6:
+                    return (day <= 20) ? SunSign.Gemini : SunSign.Cancer;
+                case 7:
+                    return (day <= 22) ? SunSign.Cancer : SunSign.Leo;
+                case 8:
+                    return (day <= 22) ? SunSign.Leo : SunSign.Virgo;
+                case 9:
+                    return (day <= 22) ? SunSign.Virgo : SunSign.Libra;
+                case 10:
+                    return (day <= 22) ? SunSign.Libra : SunSign.Scorpio;
+                case 11:
+                    return (day <= 21) ? SunSign.Scorpio : SunSign.Sagittarius;
+                default:
+                    return (day <= 21) ? SunSign.Sagittarius : SunSign.Capricorn;
+            }
         }
         #endregion
 
