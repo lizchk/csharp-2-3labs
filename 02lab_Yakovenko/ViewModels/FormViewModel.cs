@@ -1,176 +1,89 @@
-﻿using _01lab_Yakovenko.Tools;
-using KMA.Lab02.Yakovenko.Models;
+﻿using KMA.Lab02.Yakovenko.Models;
 using KMA.Lab02.Yakovenko.Tools;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace KMA.Lab02.Yakovenko.ViewModels
 {
     internal class FormViewModel : INotifyPropertyChanged
     {
-        private Person person = new Person();
-        private RelayCommand<object> _signCommand;
+        private Person person;
+        private RelayCommand<object> _proceedCommand;
+        private bool _isEnabled = true;
 
         #region Properties
         public DateTime DateOfBirth
         {
-            get { return person.DateOfBirth; }
-            set
-            {
-                person.DateOfBirth = value;
-                NotifyPropertyChanged();
-            }
-        }
+            get;
+            set;
+        } = DateTime.Today;
         public string Name
         {
-            get { return person.Name; }
-            set
-            {
-                person.Name = value;
-                NotifyPropertyChanged();
-            }
+            get;
+            set;
         }
         public string Surname
         {
-            get { return person.Surname; }
-            set
-            {
-                person.Surname = value;
-                NotifyPropertyChanged();
-            }
+            get;
+            set;
         }
         public string Email
         {
-            get { return person.Email; }
+            get;
+            set;
+        }
+        public bool IsEnabled
+        {
+            get
+            {
+                return _isEnabled;
+            }
             set
             {
-                person.Email = value;
+                _isEnabled = value;
                 NotifyPropertyChanged();
             }
         }
-        public bool IsAdult
+        public RelayCommand<object> ProceedCommand
         {
-            get { return person.IsAdult; }
-            private set
+            get
             {
-                person.IsAdult = value;
-                NotifyPropertyChanged();
-            }
-
-        }
-        public SunSign SunSign
-        {
-            get { return person.SunSign; }
-            private set
-            {
-                person.SunSign = value;
-                NotifyPropertyChanged();
-            }
-        }
-        public ChineseSign ChineseSign
-        {
-            get { return person.ChineseSign; }
-            private set
-            {
-                person.ChineseSign = value;
-                NotifyPropertyChanged();
-            }
-        }
-        public bool IsBirthday
-        {
-            get { return person.IsBirthday; }
-            private set
-            {
-                person.IsBirthday = value;
-                NotifyPropertyChanged();
-            }
-        } 
-        #endregion
-
-        #region CalcAge
-        private void CalcAdult()
-        {
-            IsAdult = CalcAge() >= 18;
-        }
-        private void CalcBirthday()
-        {
-            IsBirthday = CalcBirth();
-        }
-        private int CalcAge()
-        {
-            int age = DateTime.Now.Year - DateOfBirth.Year;
-            if (DateTime.Now.Month < DateOfBirth.Month || (DateTime.Now.Month == DateOfBirth.Month && DateTime.Now.Day < DateOfBirth.Day))
-            {
-                age--;
-            }
-            if (age < 0 || age > 135)
-            {
-                MessageBox.Show("Date of birth entered incorrectly! Try again.");
-            }
-            return age;
-        }
-        private bool CalcBirth()
-        {
-            if (DateTime.Now.Day == DateOfBirth.Day && DateTime.Now.Month == DateOfBirth.Month)
-            {
-                MessageBox.Show("💖");
-                return true;
-            }
-            return false;
-
-        }
-        #endregion
-
-        #region CalcSign
-        private void CalcChineseSign()
-        {
-            ChineseSign = CalcChinSign();
-        }
-        private void CalcSunSign()
-        {
-            SunSign = CalcWestSign();
-        }
-        private ChineseSign CalcChinSign()
-        {
-            return (ChineseSign)(DateOfBirth.Year % 12);
-        }
-        private SunSign CalcWestSign()
-        {
-
-            int month = DateOfBirth.Month;
-            int day = DateOfBirth.Day;
-
-            switch (month)
-            {
-                case 1:
-                    return (day <= 19) ? SunSign.Capricorn : SunSign.Aquarius;
-                case 2:
-                    return (day <= 18) ? SunSign.Aquarius : SunSign.Pisces;
-                case 3:
-                    return (day <= 20) ? SunSign.Pisces : SunSign.Aries;
-                case 4:
-                    return (day <= 19) ? SunSign.Aries : SunSign.Taurus;
-                case 5:
-                    return (day <= 20) ? SunSign.Taurus : SunSign.Gemini;
-                case 6:
-                    return (day <= 20) ? SunSign.Gemini : SunSign.Cancer;
-                case 7:
-                    return (day <= 22) ? SunSign.Cancer : SunSign.Leo;
-                case 8:
-                    return (day <= 22) ? SunSign.Leo : SunSign.Virgo;
-                case 9:
-                    return (day <= 22) ? SunSign.Virgo : SunSign.Libra;
-                case 10:
-                    return (day <= 22) ? SunSign.Libra : SunSign.Scorpio;
-                case 11:
-                    return (day <= 21) ? SunSign.Scorpio : SunSign.Sagittarius;
-                default:
-                    return (day <= 21) ? SunSign.Sagittarius : SunSign.Capricorn;
+                return _proceedCommand ??= new RelayCommand<object>(_ => Proceed(), CanExecute);
             }
         }
         #endregion
+        private bool CanExecute(object o)
+        {
+            return !String.IsNullOrWhiteSpace(Name) && !String.IsNullOrWhiteSpace(Surname) && !String.IsNullOrWhiteSpace(Email);
+        }
+        internal async void Proceed()
+        {
+            IsEnabled = false;
+            Person p = new Person(Name, Surname, Email, DateOfBirth);
+            try
+            {
+                await Task.Run(() =>
+                {
+                    Thread.Sleep(1000);
+                    MessageBox.Show($"First name: {Name} \nLast name: {Surname} \nEmail: {Email} \nDate of birth: {DateOfBirth.ToShortDateString()}" +
+                        $"\nIs adult: {p.IsAdult} \nSun sign: {p.SunSign} \nChinese sign: {p.ChineseSign} \nIs birthday: {p.IsBirthday}");
+                });
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                IsEnabled = true;
+            }
+        }
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void NotifyPropertyChanged([CallerMemberName] string? propertyName = null)
