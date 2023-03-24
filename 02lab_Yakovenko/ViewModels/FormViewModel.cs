@@ -62,8 +62,14 @@ namespace KMA.Lab02.Yakovenko.ViewModels
         }
         internal async void Proceed()
         {
+
             IsEnabled = false;
             Person p = new Person(Name, Surname, Email, DateOfBirth);
+            if (String.IsNullOrEmpty(p.Name) || String.IsNullOrEmpty(p.Surname) || String.IsNullOrEmpty(p.Email))
+            {
+                IsEnabled = true;
+                return;
+            }
             try
             {
                 await Task.Run(() =>

@@ -6,24 +6,47 @@ namespace KMA.Lab02.Yakovenko.Models
 {
     internal class Person
     {
-        #region Fields
         private string _name;
         private string _surname;
         private string _email;
-        private DateTime _dateOfBirth;
-        private bool _isAdult;
-        private SunSign _sunSign;
-        private ChineseSign _chineseSign;
-        private bool _isBirthday;
-        #endregion
+        private DateTime _dateOfBirth = DateTime.Today;
 
-        #region Constructors
         public Person(string name, string surname, string email, DateTime dateOfBirth)
         {
+            try
+            {
+                if (ExcFutureDate(CalcAge(dateOfBirth)) == true)
+                {
+                    throw new ExcFutureDate();
+                }
+                if (ExcPastDate(CalcAge(dateOfBirth)) == true)
+                {
+                    throw new ExcPastDate();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
+            }
+            try
+            {
+                EmailExceptions(email);
+            }
+            catch (ExcEmail e)
+            {
+                MessageBox.Show(e.Message);
+                return;
+            }
+
             _name = name;
             _surname = surname;
             _email = email;
             _dateOfBirth = dateOfBirth;
+            isAdult = CalcAge(DateOfBirth) >= 18;
+            sunSign = CalcWestSign();
+            chineseSign = CalcChinSign();
+            isBirthday = CalcBirth();
         }
         public Person(string name, string surname, string email) : this(name, surname, email, default)
         {
@@ -33,9 +56,7 @@ namespace KMA.Lab02.Yakovenko.Models
         {
 
         }
-        #endregion
 
-        #region Properties
         public DateTime DateOfBirth
         {
             get { return _dateOfBirth; }
@@ -59,37 +80,32 @@ namespace KMA.Lab02.Yakovenko.Models
         }
         public bool IsAdult
         {
-            get { return CalcAge() >= 18; }
+            get { return isAdult; }
         }
         public SunSign SunSign
         {
-            get { return CalcWestSign(); }
+            get { return sunSign; }
         }
         public ChineseSign ChineseSign
         {
-            get { return CalcChinSign(); }
+            get { return chineseSign; }
         }
         public bool IsBirthday
         {
-            get { return CalcBirth(); }
+            get { return isBirthday; }
         }
-        #endregion
 
-        #region CalcAge
-
-        private int CalcAge()
+        private bool isAdult;
+        private int CalcAge(DateTime dateOfBirth)
         {
-            int age = DateTime.Now.Year - DateOfBirth.Year;
-            if (DateTime.Now.Month < DateOfBirth.Month || (DateTime.Now.Month == DateOfBirth.Month && DateTime.Now.Day < DateOfBirth.Day))
+            int age = DateTime.Now.Year - dateOfBirth.Year;
+            if (DateTime.Now.Month < dateOfBirth.Month || (DateTime.Now.Month == dateOfBirth.Month && DateTime.Now.Day < dateOfBirth.Day))
             {
                 age--;
             }
-            if (age < 0 || age > 135)
-            {
-                MessageBox.Show("Date of birth entered incorrectly! Try again.");
-            }
             return age;
         }
+        private bool isBirthday;
         private bool CalcBirth()
         {
             if (DateTime.Now.Day == DateOfBirth.Day && DateTime.Now.Month == DateOfBirth.Month)
@@ -100,13 +116,14 @@ namespace KMA.Lab02.Yakovenko.Models
             return false;
 
         }
-        #endregion
 
-        #region CalcSign
+        private ChineseSign chineseSign;
         private ChineseSign CalcChinSign()
         {
             return (ChineseSign)(DateOfBirth.Year % 12);
         }
+
+        private SunSign sunSign;
         private SunSign CalcWestSign()
         {
 
@@ -141,7 +158,36 @@ namespace KMA.Lab02.Yakovenko.Models
                     return (day <= 21) ? SunSign.Sagittarius : SunSign.Capricorn;
             }
         }
-        #endregion
 
+        private bool ExcPastDate(int age)
+        {
+            if (age <= 135)
+            {
+                return false;
+            }
+            return true;
+        }
+        private bool ExcFutureDate(int age)
+        {
+            if (age >= 0)
+            {
+                return false;
+            }
+            return true;
+        }
+       
+        private bool ExcEmail(string email)
+        {
+            bool excEmail;
+            excEmail = email.Contains('@');
+            return excEmail;
+        }
+        private void EmailExceptions(string email)
+        {
+            if (ExcEmail(email) == false)
+            {
+                throw new ExcEmail();
+            }
+        }
     }
 }
